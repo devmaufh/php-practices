@@ -190,5 +190,3 @@ public function update_by_id($user,$condition)
         $this->exec_query($query,"Registro actualizado correctamente","Error al actualizar");   
     }
 ```
-
-### select_2
