@@ -155,7 +155,6 @@ $connection->connect(); //Llamada al método para conectar con la base de datos,
 
 
 
-
 // Uso de los métodos
 /* insercción*/
 $connection->insert($user1); //Inserta usuario1 en la base de datos
