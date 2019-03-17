@@ -118,7 +118,7 @@ Cabe mencionar que antes de hacer alguna operación en la base de datos, debemos
 #### Insert
 Para realizar una insercción en la base de datos, hacemos uso del método **insert**. Recibe como parámetro un objeto **usuario** de la clase **Usuarios** que creamos anteriormente.
 
-Generamos una consulta **sql** para insertar en los campos `mail`y `password` los atributos `mail` y `password` del objeto **usuario** que recibió como parámetro el método.
+Generamos una consulta **SQL** para insertar en los campos `mail`y `password` los atributos `mail` y `password` del objeto **usuario** que recibió como parámetro el método.
 ```php
 $query="insert into users(mail,password) values('".$user->get_mail()."','".$user->get_password()."')";
 ```
@@ -151,7 +151,7 @@ private function exec_query($query,$message,$errorMessage){
 Este método es privado porque solo queremos que sea accesible dentro de la misma clase, si quisieramos que sea accesible a través de una instancia de la clase, deberíamos hacerlo público como los métodos **insert**,**delete_by_id**,**connect**,**update**, etc.
 #### delete_by_id
 Este metodo es muy similar al método **insert**, solo que éste recibe de parámetro el **id** del usuario que se desea eliminar de la base de datos.
-Al igual que en el método insert, generamos una consulta **sql**.
+Al igual que en el método insert, generamos una consulta **SQL**.
 ```php
 $query="delete from users where id=".$id;
 ```
@@ -188,5 +188,50 @@ public function update_by_id($user,$condition)
     {
         $query="update users set mail='".$user->get_mail()."',password='".$user->get_password()."' ".$condition;
         $this->exec_query($query,"Registro actualizado correctamente","Error al actualizar");   
+    }
+```
+
+#### select_all
+Para ejecutar una consulta select, al igual que en los métodos anteriores guardamos nuestra sentencia en una variable.
+```php
+$query="Select * from users";
+```
+<br>Posteriormente hacemos una llamada al método `exec_select` y le pasamos de parámetro nuestra sentencia `SQL`. En el siguiente apartado se explicará el método `exec_select`.
+```php
+$result=$this->exec_select($query);
+``` 
+El método `exec_select` nos devolverá el resultado de la consulta que ejecutamos.
+<br><br>El siguiente paso es recorrer las columnas de la tabla que consultamos mediante un ciclo `while`, el bloque dentro del ciclo se ejecutará mientras que la variable `row` encuentre filas en la tabla que consultamos, cuando ya no existan filas por recorrer, el ciclo se detendrá.
+Ahora, solamente queda imprimir los valores a pantalla accediendo a ellos como si fuese un arreglo asociativo.
+```php
+        while ($row=$result->fetch_assoc()) {
+            echo $row['mail']." ".$row['password']."<hr>";
+        }
+```
+Código completo de la función `select_all`
+```php
+public function select_all(){
+        $query="Select * from users";
+        $result=$this->exec_select($query);
+        while ($row=$result->fetch_assoc()) {
+            echo $row['mail']." ".$row['password']."<hr>";
+        }
+    }
+```
+
+#### exec_select
+Esta función recibe como parámetro una consulta, verifica el estado de la conexión mediante el atributo `status`, posteriormente ejecuta la consulta haciendo uso de la instancia (`conn`) de nuestra conexión con la base de datos, ejecuta nuevamente el método `query` al que le pasamos de parámetro el `query` que nos llegó de parámetro. <br><br>Una vez ejecutada la consulta, verificamos si el resultado contiene más de 0 filas, si esto se cumple, retornamos el resultado de la consulta, así nos aseguramos de que no retornemos una tabla "*vacia*". Si nuestro resultado tiene **0** filas entonces retornamos un 0.
+```php
+private function exec_select($query){
+        if($this->status){
+            $result=$this->conn->query($query);
+            if($result->num_rows>0){
+                return $result;
+            }else{
+                return 0;
+            }
+        }else{
+            return "Error";
+        }
     }
 ```
